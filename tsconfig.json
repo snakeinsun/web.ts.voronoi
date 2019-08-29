@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "sourceMap": true,
+    //https://www.typescriptlang.org/docs/handbook/compiler-options.html
+    "allowUnreachableCode": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "suppressExcessPropertyErrors": false,
+    "alwaysStrict": true,
+    "removeComments": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    //
+    // outdir - split between files
+    "outDir": "./dist",
+    "module": "commonjs"
+  }
+}
