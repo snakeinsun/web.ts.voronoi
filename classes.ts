@@ -1,132 +1,264 @@
 "use strict";
 
-class Site {
 
-    public x: number;
-    public y: number;
+namespace Geometry {
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
+    export class Segment {
 
-    public toPoint(): Point {
-        return new Point(this.x, this.y);
-    }
+        public p1: Point;
+        public p2: Point;
 
-}
-
-
-class Edge {
-
-    public p1: Point;
-    public p2: Point;
-
-    constructor(p1: Point, p2: Point) {
-        this.p1 = new Point(p1.x, p1.y);
-        this.p2 = new Point(p2.x, p2.y);
-    }
-
-    /** make p1 less than p2 */
-    public turn() {
-        if (this.p1.x > this.p2.x) {
-            let a = this.p1.x;
-            this.p1.x = this.p2.x;
-            this.p2.x = a;
+        constructor(p1: Point, p2: Point) {
+            this.p1 = p1.clone();
+            this.p2 = p2.clone();
         }
-        if (this.p1.y > this.p2.y) {
-            let a = this.p1.y;
-            this.p1.y = this.p2.y;
-            this.p2.y = a;
+
+        public clone(): Segment {
+            return new Segment(this.p1, this.p2);
+        }
+
+        public equals(b: Segment): boolean {
+            let a = this;
+            return (
+                (a.p1.equals(b.p1) && a.p2.equals(b.p2)) ||
+                (a.p2.equals(b.p1) && a.p1.equals(b.p2))
+            );
+        }
+
+        public draw(ctx: CanvasRenderingContext2D, color: string) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(this.p1.x + shiftX, this.p1.y + shiftY);
+            ctx.lineTo(this.p2.x + shiftX, this.p2.y + shiftY);
+            ctx.stroke();
+        }
+
+
+        public getTheSide(p: Point): number {
+            return Helper.getTheSide(this.p1.x, this.p1.y, this.p2.x, this.p2.y, p.x, p.y);
+        }
+
+        public get length() {
+            return Helper.getDistance(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+        }
+
+    }
+
+    export class Point {
+
+        public _x: number;
+        public get x() { return this._x; }
+        public set x(value: number) { this._x = value; }
+
+        public _y: number;
+        public get y() { return this._y; }
+        public set y(value: number) { this._y = value; }
+
+        constructor(x: number, y: number) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public clone(): Point {
+            return new Point(this.x, this.y);
+        }
+
+        public equals(b: Point): boolean {
+            let a = this;
+            return Math.abs(a.x - b.x) < 0.001 && Math.abs(a.y - b.y) < 0.001;
+        }//Number.EPSILON
+
+        public draw(ctx: CanvasRenderingContext2D, color: string) {
+            ctx.fillStyle = color;
+            ctx.fillRect(this.x + shiftX, this.y + shiftY, 2, 2);
         }
     }
 
-    public isOnEdge(p: Point): boolean {
-        this.turn();
-        return p.x >= this.p1.x &&
-            p.x <= this.p2.x &&
-            p.y >= this.p1.y &&
-            p.y <= this.p2.y;
-    }
+    export class Polygon {
 
-    public equals(b: Edge): boolean {
-        let a = this;
-        return (
-            (a.p1.x == b.p1.x && a.p1.y == b.p1.y && a.p2.x == b.p2.x && a.p2.y == b.p2.y) ||
-            (a.p2.x == b.p1.x && a.p2.y == b.p1.y && a.p1.x == b.p2.x && a.p1.y == b.p2.y)
-        );
-    }
+        segments: Array<Segment>;
 
-    public draw(ctx: CanvasRenderingContext2D, color: string) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(this.p1.x + shiftX, this.p1.y + shiftY);
-        ctx.lineTo(this.p2.x + shiftX, this.p2.y + shiftY);
-        ctx.stroke();
-    }
+        constructor(lines: Array<Segment>) {
+            this.segments = lines.map((l) => l);
+        }
 
+        private arrangeSegments() {
+            if (this.segments.length == 0)
+                return;
+
+            let segments = this.segments.map((s) => s);
+            this.segments = [];
+
+            let ix = 0;
+            this.segments.push(segments[0]);
+            segments.shift();
+            while (segments.length > 0) {
+
+                for (let i = 0; i < segments.length; i++) {
+                    let s = segments[i];
+
+                    if (s.p1.equals(this.segments[ix].p2)) {
+                        this.segments.push(s);
+                        segments.splice(i, 1);
+                        ix++
+                        break;
+                    }
+
+                    if (s.p2.equals(this.segments[ix].p2)) {
+                        let t = s.p1;
+                        s.p1 = s.p2;
+                        s.p2 = t;
+                        this.segments.push(s);
+                        segments.splice(i, 1);
+                        ix++
+                        break;
+                    }
+                }
+            }
+        }
+
+        public getCentroid(): Point {
+
+            if (this.segments.length == 0)
+                return new Point(0, 0);
+
+            this.arrangeSegments();
+
+            let points: Array<Point> = [];
+            this.segments.forEach((s) => {
+                if (points.filter((p) => s.p1.equals(p)).length == 0)
+                    points.push(s.p1);
+                if (points.filter((p) => s.p2.equals(p)).length == 0)
+                    points.push(s.p2);
+            });
+            let first = points[0];
+            let last = points[points.length - 1];
+
+            if (first.x != last.x || first.y != last.y) points.push(new Point(first.x, first.y));
+            let twicearea = 0,
+                x = 0, y = 0,
+                p1: Point, p2: Point, f: number;
+            for (var i = 0, j = points.length - 1; i < points.length; j = i++) {
+                p1 = points[i]; p2 = points[j];
+                f = p1.x * p2.y - p2.x * p1.y;
+                twicearea += f;
+                x += (p1.x + p2.x) * f;
+                y += (p1.y + p2.y) * f;
+            }
+            f = twicearea * 3;
+            return new Point(x / f + 5, y / f + 5);
+        }
+
+        public draw(ctx: CanvasRenderingContext2D, color: string) {
+            this.segments.forEach((s) => s.draw(ctx, color));
+        }
+
+        public clone(): Polygon {
+            return new Polygon(this.segments.map(s => s));
+        }
+
+
+        public mergeWith(pol: Polygon) {
+            let all = this.segments.filter(s => s).concat(pol.segments);
+
+            this.segments = [];
+
+            all.forEach((seg) => {
+                if (all.filter((x) => x.equals(seg)).length == 1)
+                    this.segments.push(seg);
+            });
+        }
+
+
+        public cutIn2(line: Segment): Array<{ side: number, polygon: Polygon }> | null {
+
+            // make a copies
+            let result: Array<{ side: number, polygon: Polygon }> = [
+                { side: -1, polygon: new Polygon([]) },
+                { side: 1, polygon: new Polygon([]) }
+            ];
+            let intersections: Array<{ p: Point, s: Segment }> = [];
+
+            this.segments.forEach((seg) => {
+                let intersection = Helper.getIntersection(
+                    seg.p1.x, seg.p1.y,
+                    seg.p2.x, seg.p2.y,
+                    line.p1.x, line.p1.y,
+                    line.p2.x, line.p2.y);
+
+                if (intersection.intersect) {
+                    let p = new Point(intersection.x, intersection.y);
+                    if (intersections.filter((x) => x.p.equals(p)).length == 0) {
+                        intersections.push({
+                            p: p,
+                            s: seg
+                        });
+                    }
+                }
+            });
+
+            if (intersections.length == 2) {
+
+                result.forEach((r) => {
+
+                    this.segments.forEach((seg) => {
+
+                        let currentIntersection: { p: Point, s: Segment } = null;
+                        intersections.forEach(i => {
+                            if (i.s.equals(seg))
+                                currentIntersection = i;
+                        });
+
+
+
+                        // both segment points on correct side
+                        if (line.getTheSide(seg.p1) == r.side && line.getTheSide(seg.p2) == r.side)
+                            r.polygon.segments.push(seg.clone());
+
+                        if (line.getTheSide(seg.p1) == r.side && line.getTheSide(seg.p2) != r.side) {
+                            if (currentIntersection == null) {
+                                currentIntersection = currentIntersection;
+                            }
+                            let sn = new Segment(seg.p1, currentIntersection.p);
+                            if (sn.length > 0.001)
+                                r.polygon.segments.push(sn);
+                        }
+
+                        if (line.getTheSide(seg.p1) != r.side && line.getTheSide(seg.p2) == r.side) {
+                            let sn = new Segment(seg.p2, currentIntersection.p);
+                            if (sn.length > 0.001)
+                                r.polygon.segments.push(sn);
+                        }
+                    });
+
+                    r.polygon.segments.push(new Segment(intersections[0].p, intersections[1].p));
+                });
+
+                return result;
+            }
+            return null;
+        }
+
+    }
 }
 
 
-class Cell {
+class Helper {
 
-    public site: Site;
-    public edges: Array<Edge>;
 
-    constructor(site: Site, edges: Array<Edge> = []) {
-        this.site = site;
-        this.edges = edges.map((e) => new Edge(e.p1, e.p2));
-    }
-
-    public draw(ctx: CanvasRenderingContext2D, color: string) {
-        ctx.fillStyle = color;
-        ctx.fillRect(this.site.x + shiftX, this.site.y + shiftY, 8, 8);
-        this.edges.forEach((e) => e.draw(ctx, color));
-    }
-
-    public movePoint(from: Point, to: Point) {
-        this.edges.forEach((e) => {
-            if (e.p1.equals(from))
-                e.p1 = new Point(to.x, to.y);
-            if (e.p2.equals(from))
-                e.p2 = new Point(to.x, to.y);
-        });
-    }
-}
-
-class Point {
-
-    public x: number;
-    public y: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public draw(ctx: CanvasRenderingContext2D, color: string) {
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x + shiftX, this.y + shiftY, 8, 8);
-    }
-
-    public equals(b: Point): boolean {
-        let a = this;
-        return a.x == b.x && a.y == b.y;
-    }
-
-    public static getMidpoint(p1: Point, p2: Point): Point {
-        return new Point((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
+    public static getMidpoint(x1: number, y1: number, x2: number, y2: number): { x: number, y: number } {
+        return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
     }
 
     /** y=ax+b */
-    public static getLineEquation(p: Point, slope: number): { a: number, b: number } {
+    public static getLineEquation(px: number, py: number, slope: number): { a: number, b: number } {
         let a = slope;
         let b: number;
-        if (slope == 0 || p.x == 0)
-            b = p.y;
+        if (slope == 0 || px == 0)
+            b = py;
 
-        b = p.y - (slope * p.x);
+        b = py - (slope * px);
 
         return { a: a, b: b };
     }
@@ -138,7 +270,7 @@ class Point {
     }
 
 
-    public static getIntersection2(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number) {
+    public static getIntersection(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): { x: number, y: number, intersect: boolean } {
 
         // Check if none of the lines are of length 0
         if ((x1 === x2 && y1 === y2) || (x3 === x4 && y3 === y4)) {
@@ -166,16 +298,7 @@ class Point {
         return { x, y, intersect: true }
     }
 
-    public static getDistance(p2: Point, p1: Point): number {
-        return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
-    }
-
-}
-
-
-class Helper {
-
-    public static getTheSide(xLp1: number, yLp1: number, xLp2: number, yLp2: number, x: number, y: number) {
+    public static getTheSide(xLp1: number, yLp1: number, xLp2: number, yLp2: number, x: number, y: number): number {
         //https://stackoverflow.com/questions/5973372/determine-if-two-points-are-on-the-same-side-of-a-line-in-javascript
         let vector = { x: xLp2 - xLp1, y: yLp2 - yLp1 };
         let w = { x: vector.y, y: -vector.x };
@@ -185,6 +308,37 @@ class Helper {
 
         let dot = (B.x - P.x) * w.x + (B.y - P.y) * w.y;
 
-        return Math.sign(dot);
+        let side = Math.sign(dot);
+        if (side == 0) side = 1;
+        return side;
+    }
+
+    public static getDistance(x1: number, y1: number, x2: number, y2: number): number {
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 }
+
+class VoronoiCell {
+
+    public middle: Geometry.Point;
+    public polygon: Geometry.Polygon;
+    public temporary: boolean;
+
+    constructor(mid: Geometry.Point, segments: Array<Geometry.Segment>) {
+        this.polygon = new Geometry.Polygon(segments);
+        this.middle = mid.clone();
+        this.temporary = false;
+    }
+
+    public draw(ctx: CanvasRenderingContext2D, color: string) {
+        this.polygon.draw(ctx, color);
+        this.middle.draw(ctx, color);
+    }
+
+
+    public clone(): VoronoiCell {
+        return new VoronoiCell(this.middle.clone(), this.polygon.segments);
+    }
+}
+
+
