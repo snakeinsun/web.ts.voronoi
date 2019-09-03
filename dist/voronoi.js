@@ -110,8 +110,7 @@ function makeVoronoi(canvas, canvas2, S) {
         new Geometry.Segment(new Geometry.Point(0, -100 * height), new Geometry.Point(0, 100 * height)),
         new Geometry.Segment(new Geometry.Point(width, -100 * height), new Geometry.Point(width, 100 * height))
     ];
-    for (let cx = 0; cx < C.length; cx++) {
-        let cell = C[cx];
+    C.forEach((cell) => {
         cutLines.forEach((l) => {
             let intersections = cell.polygon.cutIn2(l);
             if (intersections != null) {
@@ -127,8 +126,28 @@ function makeVoronoi(canvas, canvas2, S) {
                 }
             }
         });
-    }
+    });
     clear2();
+    let connections = [];
+    C.forEach((c1) => {
+        C.filter((c2) => {
+            if (!c1.middle.equals(c2.middle))
+                c1.polygon.segments.forEach((s1) => {
+                    c2.polygon.segments.forEach((s2) => {
+                        if (s1.equals(s2)) {
+                            connections.push(new Geometry.Segment(c1.middle, c2.middle));
+                            if (!c1.isAlreadyConnected(c2)) {
+                                c1.connectedCells.push({ c: c2, s: s1 });
+                                c2.connectedCells.push({ c: c1, s: s2 });
+                            }
+                        }
+                    });
+                });
+        });
+    });
+    connections.forEach((c) => {
+        c.draw(ctx2, "#876651");
+    });
     drawVoronoi(C);
 }
 //# sourceMappingURL=voronoi.js.map

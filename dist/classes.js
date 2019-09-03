@@ -233,10 +233,14 @@ class VoronoiCell {
         this.polygon = new Geometry.Polygon(segments);
         this.middle = mid.clone();
         this.temporary = false;
+        this.connectedCells = [];
     }
     draw(ctx, color) {
         this.polygon.draw(ctx, color);
         this.middle.draw(ctx, color);
+    }
+    isAlreadyConnected(c) {
+        this.connectedCells.filter((x) => x.c.middle.equals(c.middle)).length > 0;
     }
     clone() {
         return new VoronoiCell(this.middle.clone(), this.polygon.segments);

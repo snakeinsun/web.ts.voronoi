@@ -324,10 +324,15 @@ class VoronoiCell {
     public polygon: Geometry.Polygon;
     public temporary: boolean;
 
+    public connectedCells: Array<{ c: VoronoiCell, s: Geometry.Segment }>;
+
+
     constructor(mid: Geometry.Point, segments: Array<Geometry.Segment>) {
         this.polygon = new Geometry.Polygon(segments);
         this.middle = mid.clone();
         this.temporary = false;
+
+        this.connectedCells = [];
     }
 
     public draw(ctx: CanvasRenderingContext2D, color: string) {
@@ -335,10 +340,13 @@ class VoronoiCell {
         this.middle.draw(ctx, color);
     }
 
+    public isAlreadyConnected(c: VoronoiCell): boolean {
+        this.connectedCells.filter((x) => x.c.middle.equals(c.middle)).length > 0;
+    }
+
 
     public clone(): VoronoiCell {
         return new VoronoiCell(this.middle.clone(), this.polygon.segments);
     }
 }
-
 
