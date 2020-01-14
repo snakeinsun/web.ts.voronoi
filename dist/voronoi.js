@@ -1,8 +1,8 @@
 "use strict";
+let width;
+let height;
 let shiftX = 2;
 let shiftY = 2;
-let width = 1200;
-let height = 1200;
 let ctx;
 let ctx2;
 function clear2() {
@@ -61,6 +61,8 @@ function testCutting() {
     }
 }
 function makeVoronoi(canvas, canvas2, S) {
+    width = canvas.width;
+    height = canvas.height;
     ctx = canvas.getContext("2d");
     ctx2 = canvas2.getContext("2d");
     let C = [];
@@ -101,7 +103,6 @@ function makeVoronoi(canvas, canvas2, S) {
             }
         }
         C.push(cell);
-        drawVoronoi(C);
     });
     C = C.filter((cell) => !cell.temporary);
     let cutLines = [
@@ -126,27 +127,6 @@ function makeVoronoi(canvas, canvas2, S) {
                 }
             }
         });
-    });
-    clear2();
-    let connections = [];
-    C.forEach((c1) => {
-        C.filter((c2) => {
-            if (!c1.middle.equals(c2.middle))
-                c1.polygon.segments.forEach((s1) => {
-                    c2.polygon.segments.forEach((s2) => {
-                        if (s1.equals(s2)) {
-                            connections.push(new Geometry.Segment(c1.middle, c2.middle));
-                            if (!c1.isAlreadyConnected(c2)) {
-                                c1.connectedCells.push({ c: c2, s: s1 });
-                                c2.connectedCells.push({ c: c1, s: s2 });
-                            }
-                        }
-                    });
-                });
-        });
-    });
-    connections.forEach((c) => {
-        c.draw(ctx2, "#876651");
     });
     drawVoronoi(C);
 }

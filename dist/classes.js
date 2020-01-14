@@ -240,7 +240,10 @@ class VoronoiCell {
         this.middle.draw(ctx, color);
     }
     isAlreadyConnected(c) {
-        this.connectedCells.filter((x) => x.c.middle.equals(c.middle)).length > 0;
+        if (this.connectedCells.find((x) => x.c.middle.equals(c.middle)))
+            return true;
+        else
+            return false;
     }
     clone() {
         return new VoronoiCell(this.middle.clone(), this.polygon.segments);

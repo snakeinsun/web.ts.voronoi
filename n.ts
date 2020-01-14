@@ -1,5 +1,8 @@
 "use strict";
 
+let cnv: HTMLCanvasElement;
+let cnv2: HTMLCanvasElement;
+
 function start() {
 
 
@@ -17,13 +20,20 @@ function start() {
         S.push(new Geometry.Point(71, 73));
     */
 
-    for (let i = 0; i < 440; i++)
-        S.push(new Geometry.Point(Math.random() * width, Math.random() * height));
+    cnv = <HTMLCanvasElement>document.getElementById("cnv")
+    cnv2 = <HTMLCanvasElement>document.getElementById("cnv2");
+    cnv.width = window.innerWidth;
+    cnv.height = window.innerHeight;
+    cnv2.width = window.innerWidth;
+    cnv2.height = window.innerHeight;
+
+    for (let i = 0; i < 940; i++)
+        S.push(new Geometry.Point(Math.random() * cnv.width, Math.random() * cnv.height));
 
 
 
 
-    makeVoronoi(<HTMLCanvasElement>document.getElementById("cnv"), <HTMLCanvasElement>document.getElementById("cnv2"), S);
+    makeVoronoi(cnv, cnv2, S);
 
 
 

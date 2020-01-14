@@ -341,7 +341,10 @@ class VoronoiCell {
     }
 
     public isAlreadyConnected(c: VoronoiCell): boolean {
-        this.connectedCells.filter((x) => x.c.middle.equals(c.middle)).length > 0;
+        if (this.connectedCells.find((x) => x.c.middle.equals(c.middle)))
+            return true;
+        else
+            return false;
     }
 
 

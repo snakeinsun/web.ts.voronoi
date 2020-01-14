@@ -3,13 +3,11 @@
 // https://courses.cs.washington.edu/courses/cse326/00wi/projects/voronoi.html
 
 
-
+let width;
+let height;
 
 let shiftX = 2;
 let shiftY = 2;
-
-let width = 1200;
-let height = 1200;
 
 let ctx: CanvasRenderingContext2D;
 let ctx2: CanvasRenderingContext2D;
@@ -91,6 +89,8 @@ function testCutting() {
 }
 
 function makeVoronoi(canvas: HTMLCanvasElement, canvas2: HTMLCanvasElement, S: Array<Geometry.Point>) {
+    width = canvas.width;
+    height = canvas.height;
     /*
                  A2
 
@@ -161,7 +161,7 @@ function makeVoronoi(canvas: HTMLCanvasElement, canvas2: HTMLCanvasElement, S: A
 
         C.push(cell);
 
-        drawVoronoi(C);
+        // drawVoronoi(C);
     });
 
     // remove temporary ones
@@ -210,31 +210,31 @@ function makeVoronoi(canvas: HTMLCanvasElement, canvas2: HTMLCanvasElement, S: A
 
 
     // connect dots
-    clear2();
-    let connections: Array<Geometry.Segment> = [];
-    C.forEach((c1) => {
-        C.filter((c2) => {
-            if (!c1.middle.equals(c2.middle))
-                c1.polygon.segments.forEach((s1) => {
-                    c2.polygon.segments.forEach((s2) => {
-                        if (s1.equals(s2)) {
-                            connections.push(new Geometry.Segment(c1.middle, c2.middle));
-
-                            if (!c1.isAlreadyConnected(c2)) {
-                                c1.connectedCells.push({ c: c2, s: s1 });
-                                c2.connectedCells.push({ c: c1, s: s2 });
-                            }
-                        }
-                    });
-                });
-        });
-    });
-
-    connections.forEach((c) => {
-        c.draw(ctx2, "#876651");
-    });
-
-
+    /*  clear2();
+      let connections: Array<Geometry.Segment> = [];
+      C.forEach((c1) => {
+          C.filter((c2) => {
+              if (!c1.middle.equals(c2.middle))
+                  c1.polygon.segments.forEach((s1) => {
+                      c2.polygon.segments.forEach((s2) => {
+                          if (s1.equals(s2)) {
+                              connections.push(new Geometry.Segment(c1.middle, c2.middle));
+  
+                              if (!c1.isAlreadyConnected(c2)) {
+                                  c1.connectedCells.push({ c: c2, s: s1 });
+                                  c2.connectedCells.push({ c: c1, s: s2 });
+                              }
+                          }
+                      });
+                  });
+          });
+      });
+  
+      connections.forEach((c) => {
+          c.draw(ctx2, "#876651");
+      });
+  
+  */
 
 
 
