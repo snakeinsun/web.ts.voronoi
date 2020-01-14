@@ -3,8 +3,8 @@
 // https://courses.cs.washington.edu/courses/cse326/00wi/projects/voronoi.html
 
 
-let width;
-let height;
+let width: number;
+let height: number;
 
 let shiftX = 2;
 let shiftY = 2;
