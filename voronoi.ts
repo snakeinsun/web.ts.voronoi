@@ -6,25 +6,26 @@
 let width: number;
 let height: number;
 
-let shiftX = 2;
-let shiftY = 2;
+let shiftX = 0;
+let shiftY = 0;
 
 let ctx: CanvasRenderingContext2D;
 let ctx2: CanvasRenderingContext2D;
 
 function clear2() {
-    ctx2.clearRect(0, 0, 333333, 333333);
+    ctx2.clearRect(0, 0, ctx2.canvas.width, ctx2.canvas.height);
 }
 
 function drawVoronoi(v: Array<VoronoiCell>) {
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, 88888, 88888);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.fillStyle = "#b4b4b4";
     ctx.fillRect(shiftX, shiftY, width, height);
 
 
     // axis
+    /*
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -35,7 +36,7 @@ function drawVoronoi(v: Array<VoronoiCell>) {
     ctx.moveTo(shiftX, shiftY);
     ctx.lineTo(shiftX + 44444, shiftY);
     ctx.stroke();
-
+*/
 
 
 
@@ -206,39 +207,6 @@ function makeVoronoi(canvas: HTMLCanvasElement, canvas2: HTMLCanvasElement, S: A
             }
         });
     });
-
-
-
-    // connect dots
-    /*  clear2();
-      let connections: Array<Geometry.Segment> = [];
-      C.forEach((c1) => {
-          C.filter((c2) => {
-              if (!c1.middle.equals(c2.middle))
-                  c1.polygon.segments.forEach((s1) => {
-                      c2.polygon.segments.forEach((s2) => {
-                          if (s1.equals(s2)) {
-                              connections.push(new Geometry.Segment(c1.middle, c2.middle));
-  
-                              if (!c1.isAlreadyConnected(c2)) {
-                                  c1.connectedCells.push({ c: c2, s: s1 });
-                                  c2.connectedCells.push({ c: c1, s: s2 });
-                              }
-                          }
-                      });
-                  });
-          });
-      });
-  
-      connections.forEach((c) => {
-          c.draw(ctx2, "#876651");
-      });
-  
-  */
-
-
-
-
 
     drawVoronoi(C);
 }

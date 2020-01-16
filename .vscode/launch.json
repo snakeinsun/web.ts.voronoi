@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "${workspaceFolder}/dist/index.html",
+            "url": "http://localhost/49%20vornoi%20diagram/web.ts.voronoi/dist/index.html",
             "webRoot": "${workspaceFolder}"
         }
     ]

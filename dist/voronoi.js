@@ -1,28 +1,18 @@
 "use strict";
 let width;
 let height;
-let shiftX = 2;
-let shiftY = 2;
+let shiftX = 0;
+let shiftY = 0;
 let ctx;
 let ctx2;
 function clear2() {
-    ctx2.clearRect(0, 0, 333333, 333333);
+    ctx2.clearRect(0, 0, ctx2.canvas.width, ctx2.canvas.height);
 }
 function drawVoronoi(v) {
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, 88888, 88888);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = "#b4b4b4";
     ctx.fillRect(shiftX, shiftY, width, height);
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(shiftX, shiftY);
-    ctx.lineTo(shiftX, shiftY + 44444);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(shiftX, shiftY);
-    ctx.lineTo(shiftX + 44444, shiftY);
-    ctx.stroke();
     ctx.fillStyle = "#0000ff";
     v.forEach((vc) => {
         vc.draw(ctx, "#000000");

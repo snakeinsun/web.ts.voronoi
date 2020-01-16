@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <script src="classes.js"></script>
-    <script src="voronoi.js"></script>
-    <script src="n.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="Description" content="Voronoi diagram">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#b4b4b4" />
+    <meta charset="UTF-8">
+    <title>Voronoi diagram</title>
+
+    <script src="./classes.js"></script>
+    <script src="./voronoi.js"></script>
+    <script src="./n.js"></script>
+
     <style>
         body {
             margin: 0px;
+            background-color: #b4b4b4;
         }
     </style>
 </head>
@@ -15,7 +25,8 @@
 <body onload="start()">
 
     <canvas id="cnv" width="1000" height="1000" style="position: absolute; left:0px; top: 0px;"></canvas>
-    <canvas id="cnv2" width="1000" height="1000" style="position: absolute; left:0px; top: 0px; z-index: 2;"></canvas>
+    <canvas id="cnv2" width="1000" height="1000"
+        style="display: none; position: absolute; left:0px; top: 0px; z-index: 2;"></canvas>
 
 </body>
 
